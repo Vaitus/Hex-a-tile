@@ -1,0 +1,18 @@
+{
+  "name": "@hex-a-boom/client",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run build && bun run server.ts",
+    "build": "bun build src/index.ts --outdir dist --target browser",
+    "watch": "bun build src/index.ts --outdir dist --target browser --watch"
+  },
+  "dependencies": {
+    "@hex-a-boom/shared": "workspace:*",
+    "phaser": "^3.70.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.3.3"
+  }
+}
