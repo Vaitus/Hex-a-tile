@@ -59,62 +59,101 @@ bun run dev:client
 
 Then open the generated `index.html` in your browser.
 
-## 🎯 Current Status: Phase 1 - Local Prototype ✅
+## 🎯 Current Status: Phase 2 - Full Local Game ✅
 
 ### Implemented Features
 
-- ✅ Monorepo setup with Bun workspaces
-- ✅ Isometric tilemap rendering (single layer)
-- ✅ Single player movement with keyboard (Arrow keys)
-- ✅ Normal tile → TNT → explosion → disappear mechanic
-- ✅ Basic player death when caught in explosion
-- ✅ Death animation and restart functionality (Press R)
+- ✅ Multi-layer isometric tilemap (2 layers with falling mechanics)
+- ✅ All 6 tile types working:
+  - Normal (2s explosion)
+  - Cracked (1s explosion)
+  - Reinforced (requires 2 steps)
+  - Ice (slippery movement)
+  - Bounce (springs to upper layer)
+  - Trap (instant explosion, disguised as normal)
+- ✅ 2-4 player local multiplayer
+- ✅ Split control schemes (WASD, Arrows, IJKL, Numpad)
+- ✅ All 4 power-ups implemented:
+  - Shield (blocks one explosion)
+  - Speed Boost (3s of 1.5x speed)
+  - Double Jump (one extra jump)
+  - Freeze (pauses nearby timers for 2s)
+- ✅ Win condition (last player standing or time up)
+- ✅ Full game UI (player status, match timer, winner screen)
+- ✅ 3-minute match timer with countdown
+- ✅ Game start countdown
 
 ### Controls
 
-- **Arrow Keys**: Move player
-- **Up Arrow**: Jump
-- **R**: Restart after death
+**Player 1 (WASD)**
+- **A/D**: Move left/right
+- **W**: Jump
+- **S**: (reserved)
+
+**Player 2 (Arrow Keys)**
+- **←/→**: Move left/right
+- **↑**: Jump
+- **↓**: (reserved)
+
+**Player 3 (IJKL)**
+- **J/L**: Move left/right
+- **I**: Jump
+- **K**: (reserved)
+
+**Player 4 (Numpad)**
+- **4/6**: Move left/right
+- **8**: Jump
+- **5**: (reserved)
+
+**General**
+- **R**: Restart after match ends
 
 ### How to Play
 
-1. Move your character around the isometric map
-2. Stepping on tiles triggers them to become TNT
-3. TNT tiles show a countdown timer (2.0 seconds for normal tiles)
-4. Avoid explosions or you'll die!
-5. Don't fall off the edge of the map
+1. **Objective**: Be the last player standing!
+2. **Movement**: Avoid explosions and other players
+3. **Tiles**: Each tile type has special properties:
+   - Normal: Standard 2s timer
+   - Cracked: Faster 1s timer (has crack marks)
+   - Reinforced: Needs 2 steps (has grid pattern)
+   - Ice: Slippery! (has snowflake pattern)
+   - Bounce: Launches you up (has spring coils)
+   - Trap: Explodes instantly (no visual warning!)
+4. **Power-ups**: Collect floating icons for temporary abilities
+5. **Layers**: Fall through destroyed tiles to lower layer
+6. **Winning**: Survive longer than opponents or be last alive
 
 ## 📋 Implementation Phases
 
-### Phase 1 - Local Prototype ✅ (CURRENT)
+### Phase 1 - Local Prototype ✅
 - [x] Set up monorepo with Bun workspaces
 - [x] Isometric tilemap rendering (single layer)
 - [x] Single player movement with keyboard
 - [x] Normal tile → TNT → explosion → disappear mechanic
 - [x] Basic player death when caught in explosion
 
-### Phase 2 - Full Local Game (NEXT)
-- [ ] Multi-layer tilemap with falling between layers
-- [ ] All tile types implemented:
-  - [ ] Cracked - explodes after 1 second
-  - [ ] Reinforced - requires 2 steps to activate
-  - [ ] Ice - slippery movement
-  - [ ] Bounce - springs player upward to layer above
-  - [ ] Trap - looks normal but explodes instantly
-- [ ] 2-4 local players with split controls
-  - [ ] WASD (Player 1)
-  - [ ] Arrow Keys (Player 2)
-  - [ ] IJKL (Player 3)
-  - [ ] Numpad (Player 4)
-- [ ] Win condition detection (last standing)
-- [ ] Basic UI: player indicators, countdown, winner announcement
-- [ ] Power-up spawning and collection:
-  - [ ] Shield - survive one explosion
-  - [ ] Speed boost - 3 second faster movement
-  - [ ] Double jump - one extra jump
-  - [ ] Freeze - pause nearby explosion timers
+### Phase 2 - Full Local Game ✅ (CURRENT)
+- [x] Multi-layer tilemap with falling between layers
+- [x] All tile types implemented:
+  - [x] Cracked - explodes after 1 second
+  - [x] Reinforced - requires 2 steps to activate
+  - [x] Ice - slippery movement
+  - [x] Bounce - springs player upward to layer above
+  - [x] Trap - looks normal but explodes instantly
+- [x] 2-4 local players with split controls
+  - [x] WASD (Player 1)
+  - [x] Arrow Keys (Player 2)
+  - [x] IJKL (Player 3)
+  - [x] Numpad (Player 4)
+- [x] Win condition detection (last standing)
+- [x] Basic UI: player indicators, countdown, winner announcement
+- [x] Power-up spawning and collection:
+  - [x] Shield - survive one explosion
+  - [x] Speed boost - 3 second faster movement
+  - [x] Double jump - one extra jump
+  - [x] Freeze - pause nearby explosion timers
 
-### Phase 3 - Online Multiplayer
+### Phase 3 - Online Multiplayer (NEXT)
 - [ ] Colyseus server setup with Bun
 - [ ] Game state schema for synchronization
 - [ ] Room creation and joining (codes + public queue)

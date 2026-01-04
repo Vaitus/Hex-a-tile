@@ -5,6 +5,99 @@ All notable changes to Hex-A-Boom will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-01-04
+
+### Added - Phase 2: Full Local Game ✅
+
+#### Multi-Layer Tilemap
+- Dual-layer isometric tilemap system (layers 0 and 1)
+- Layer-to-layer falling mechanics when tiles are destroyed
+- Automatic player layer tracking based on tile positions
+- Visual depth sorting for multi-layer rendering
+
+#### All Tile Types Implemented
+- **Cracked Tiles**: 1-second explosion timer with crack visual indicators
+- **Reinforced Tiles**: Require 2 steps to trigger, show step counter
+- **Ice Tiles**: Slippery physics with gradual deceleration, snowflake pattern
+- **Bounce Tiles**: Spring players to upper layer with bounce force, spring coil visual
+- **Trap Tiles**: Instant explosion disguised as normal tiles
+- Visual indicators for each tile type (except traps)
+- Random tile distribution with layer-specific probabilities
+
+#### Local Multiplayer (2-4 Players)
+- Support for 1-4 local players in same match
+- Four distinct control schemes:
+  * Player 1: WASD
+  * Player 2: Arrow Keys
+  * Player 3: IJKL
+  * Player 4: Numpad (4/6/8/5)
+- Player spawn at corners of map for fairness
+- Player name labels (P1, P2, P3, P4) with color coding
+- Camera follows center of all alive players
+- Unique player colors from 8-color palette
+
+#### Power-Up System
+- **PowerUp Class**: Floating animated collectibles with icons
+- Power-up spawning every 15 seconds at random valid tiles
+- Auto-despawn after 20 seconds if uncollected
+- Collection detection with 30-pixel radius
+- **Shield** (🛡️): Blocks one explosion, cyan visual aura
+- **Speed Boost** (⚡): 1.5x movement speed for 3 seconds
+- **Double Jump** (⬆️): One extra mid-air jump, consumable
+- **Freeze** (❄️): Pauses explosion timers in 2-tile radius for 2 seconds
+
+#### Enhanced Player System
+- Layer-aware player movement and collision
+- Power-up effects integration
+- Ice tile slippery movement mechanics
+- Bounce tile interaction (spring to upper layer)
+- Shield visual effect (rotating cyan circle)
+- Double jump mechanics with state tracking
+- Freeze power-up area-of-effect
+- Individual player death handling
+- Player name labels following sprites
+
+#### Game UI (GameUI Class)
+- Match timer (3 minutes) with countdown display
+- Timer color coding (white → yellow → red)
+- Player status panel showing:
+  * Player numbers (P1-P4)
+  * Alive/dead status
+  * Active power-up icons
+  * Color-coded player indicators
+- Winner announcement screen with player color
+- Draw announcement if time runs out with multiple survivors
+- Game start countdown (3, 2, 1, GO!)
+- Restart prompt (Press R)
+
+#### Win Conditions
+- Last player standing wins
+- Time limit: 3-minute matches
+- Draw if multiple players alive when time expires
+- Automatic game end handling
+- Winner screen with animations
+
+#### Enhanced Game Flow
+- Game start countdown before match begins
+- Configurable player count (1-4) via scene init
+- Dynamic player spawning at corners
+- Match timer integration
+- End game state management
+- Restart functionality after match completion
+
+### Changed
+- **IsometricTilemap**: Now supports multiple layers instead of single layer
+- **Player**: Completely rewritten to support layers, power-ups, and custom controls
+- **GameScene**: Redesigned for multiplayer and full game flow
+- Tile generation now randomized with special tile types
+- Camera system now follows multiple players instead of one
+
+### Fixed
+- Layer depth sorting for correct visual stacking
+- Tile rendering on multiple layers
+- Player collision detection across layers
+- Falling mechanics through destroyed tiles
+
 ## [0.1.0] - 2026-01-04
 
 ### Added - Phase 1: Local Prototype ✅

@@ -16,22 +16,47 @@ export class IsometricTilemap {
   }
 
   create() {
-    // Initialize tiles for single layer (Phase 1)
-    this.tiles[0] = [];
-    for (let y = 0; y < this.height; y++) {
-      this.tiles[0][y] = [];
-      for (let x = 0; x < this.width; x++) {
-        const tile: Tile = {
-          type: TileType.NORMAL,
-          state: TileState.NORMAL,
-          position: { x, y, layer: 0 },
-          triggerCount: 0,
-          explosionTimer: 0,
-          isPaused: false,
-        };
-        this.tiles[0][y][x] = tile;
-        this.createTileGraphics(tile);
+    // Initialize tiles for multiple layers (Phase 2)
+    for (let layer = 0; layer < GAME_CONFIG.MAP_LAYERS; layer++) {
+      this.tiles[layer] = [];
+      for (let y = 0; y < this.height; y++) {
+        this.tiles[layer][y] = [];
+        for (let x = 0; x < this.width; x++) {
+          const tile: Tile = {
+            type: this.generateTileType(layer),
+            state: TileState.NORMAL,
+            position: { x, y, layer },
+            triggerCount: 0,
+            explosionTimer: 0,
+            isPaused: false,
+          };
+          this.tiles[layer][y][x] = tile;
+          this.createTileGraphics(tile);
+        }
       }
+    }
+  }
+
+  private generateTileType(layer: number): TileType {
+    // Layer 0 (bottom): mostly normal with some special tiles
+    // Layer 1+ (upper): more variety
+    const rand = Math.random();
+
+    if (layer === 0) {
+      // Bottom layer: 60% normal, 20% cracked, 10% reinforced, 10% other
+      if (rand < 0.60) return TileType.NORMAL;
+      if (rand < 0.80) return TileType.CRACKED;
+      if (rand < 0.90) return TileType.REINFORCED;
+      if (rand < 0.95) return TileType.ICE;
+      return TileType.TRAP;
+    } else {
+      // Upper layers: more variety, including bounce tiles
+      if (rand < 0.40) return TileType.NORMAL;
+      if (rand < 0.60) return TileType.CRACKED;
+      if (rand < 0.75) return TileType.REINFORCED;
+      if (rand < 0.83) return TileType.ICE;
+      if (rand < 0.91) return TileType.BOUNCE;
+      return TileType.TRAP;
     }
   }
 
@@ -98,6 +123,9 @@ export class IsometricTilemap {
     // Draw outline
     graphics.lineStyle(2, 0x000000, 0.5);
     graphics.strokePath();
+
+    // Draw tile type indicators
+    this.drawTileTypeIndicator(graphics, screenPos, tileW, tileH, tile);
 
     // Update timer text
     if (tile.state === TileState.TRIGGERED && tile.explosionTimer > 0) {
@@ -213,5 +241,128 @@ export class IsometricTilemap {
       top: Math.min(topLeft.y, topRight.y) - GAME_CONFIG.TILE_HEIGHT / 2,
       bottom: Math.max(bottomLeft.y, bottomRight.y) + GAME_CONFIG.TILE_HEIGHT / 2,
     };
+  }
+
+  private drawTileTypeIndicator(
+    graphics: Phaser.GameObjects.Graphics,
+    screenPos: { x: number; y: number },
+    tileW: number,
+    tileH: number,
+    tile: Tile
+  ) {
+    // Don't draw indicators on triggered/exploding tiles
+    if (tile.state !== TileState.NORMAL) return;
+
+    const centerX = screenPos.x;
+    const centerY = screenPos.y;
+
+    switch (tile.type) {
+      case TileType.CRACKED:
+        // Draw crack lines
+        graphics.lineStyle(2, 0x000000, 0.8);
+        graphics.beginPath();
+        graphics.moveTo(centerX - 10, centerY - 5);
+        graphics.lineTo(centerX + 10, centerY + 5);
+        graphics.moveTo(centerX + 5, centerY - 8);
+        graphics.lineTo(centerX - 5, centerY + 8);
+        graphics.strokePath();
+        break;
+
+      case TileType.REINFORCED:
+        // Draw reinforcement grid
+        graphics.lineStyle(2, 0xcccccc, 0.7);
+        graphics.strokeRect(centerX - 12, centerY - 6, 24, 12);
+        graphics.beginPath();
+        graphics.moveTo(centerX - 12, centerY);
+        graphics.lineTo(centerX + 12, centerY);
+        graphics.strokePath();
+        break;
+
+      case TileType.ICE:
+        // Draw ice crystals
+        graphics.lineStyle(2, 0xffffff, 0.9);
+        for (let i = 0; i < 3; i++) {
+          const angle = (i * Math.PI * 2) / 3;
+          const x1 = centerX + Math.cos(angle) * 8;
+          const y1 = centerY + Math.sin(angle) * 4;
+          const x2 = centerX - Math.cos(angle) * 8;
+          const y2 = centerY - Math.sin(angle) * 4;
+          graphics.beginPath();
+          graphics.moveTo(x1, y1);
+          graphics.lineTo(x2, y2);
+          graphics.strokePath();
+        }
+        break;
+
+      case TileType.BOUNCE:
+        // Draw spring coil
+        graphics.lineStyle(2, 0xff1493, 0.9);
+        graphics.beginPath();
+        graphics.arc(centerX, centerY - 3, 8, 0, Math.PI, true);
+        graphics.arc(centerX, centerY + 3, 8, Math.PI, 0, true);
+        graphics.strokePath();
+        break;
+
+      case TileType.TRAP:
+        // No indicator - looks like normal tile
+        break;
+
+      case TileType.NORMAL:
+      default:
+        // No special indicator
+        break;
+    }
+
+    // Show trigger count for reinforced tiles
+    if (tile.type === TileType.REINFORCED && tile.triggerCount > 0) {
+      graphics.fillStyle(0xffffff, 1);
+      graphics.fillCircle(centerX + 15, centerY - 8, 6);
+      graphics.fillStyle(0x000000, 1);
+      graphics.fillCircle(centerX + 15, centerY - 8, 4);
+    }
+  }
+
+  getTileAt(x: number, y: number, layer: number): Tile | null {
+    if (!this.isValidTile(x, y, layer)) return null;
+    return this.tiles[layer][y][x];
+  }
+
+  isTileDestroyed(x: number, y: number, layer: number): boolean {
+    if (!this.isValidTile(x, y, layer)) return true;
+    return this.tiles[layer][y][x].state === TileState.DESTROYED;
+  }
+
+  canStandOnTile(x: number, y: number, layer: number): boolean {
+    if (!this.isValidTile(x, y, layer)) return false;
+    const tile = this.tiles[layer][y][x];
+    return tile.state !== TileState.DESTROYED && tile.state !== TileState.EXPLODING;
+  }
+
+  pauseTilesInRadius(x: number, y: number, layer: number, radius: number) {
+    for (let dy = -radius; dy <= radius; dy++) {
+      for (let dx = -radius; dx <= radius; dx++) {
+        const tileX = x + dx;
+        const tileY = y + dy;
+        if (this.isValidTile(tileX, tileY, layer)) {
+          const tile = this.tiles[layer][tileY][tileX];
+          if (tile.state === TileState.TRIGGERED) {
+            tile.isPaused = true;
+          }
+        }
+      }
+    }
+  }
+
+  unpauseTilesInRadius(x: number, y: number, layer: number, radius: number) {
+    for (let dy = -radius; dy <= radius; dy++) {
+      for (let dx = -radius; dx <= radius; dx++) {
+        const tileX = x + dx;
+        const tileY = y + dy;
+        if (this.isValidTile(tileX, tileY, layer)) {
+          const tile = this.tiles[layer][tileY][tileX];
+          tile.isPaused = false;
+        }
+      }
+    }
   }
 }
